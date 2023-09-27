@@ -20,4 +20,3 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::resource('cars', CarController::class)->except(['create']);
-//Route::put('cars/create', [CarController::class, 'store'])->name('store');

@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Aggregates\CarAggregate;
-use App\ESEvents\CarAdded;
+use App\Enums\CarStatus;
 use App\Http\Requests\CarStoreRequest;
+use App\Http\Requests\CarUpdateRequest;
 use App\Projections\Car;
-use App\Services\Car\CommandService;
 use App\Services\Car\QueryService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -14,7 +14,7 @@ use Illuminate\Support\Str;
 
 class CarController extends Controller
 {
-    public function __construct(private readonly QueryService $queryService, private readonly CommandService $commandService){}
+    public function __construct(private readonly QueryService $queryService){}
 
     public function index(): JsonResponse
     {
@@ -23,7 +23,7 @@ class CarController extends Controller
 
     public function show($id): JsonResponse
     {
-        return response()->json($this->queryService->findCarsById($id));
+        return response()->json($this->queryService->find($id));
     }
 
     public function store(CarStoreRequest $request): JsonResponse
@@ -38,20 +38,15 @@ class CarController extends Controller
         return response()->json(['message' => 'Car created'], 201);
     }
 
-    public function update(Request $request, int $id): JsonResponse
+    public function update(CarUpdateRequest $request, int $id): JsonResponse
     {
-        $car = $this->queryService->findCarsById($id);
+        $car = $this->queryService->find($id);
 
         if (!$car) {
             return response()->json(['message' => 'Car not found'], 404);
         }
 
-        $status = $request->status;
-
-        if ($status) {
-            CarAggregate::retrieve($id)->changeStatus($status)->persist();
-        }
-
+        CarAggregate::retrieve($id)->update($request->all())->persist();
 
         return response()->json($car, 200);
     }

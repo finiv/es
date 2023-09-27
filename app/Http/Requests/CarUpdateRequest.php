@@ -2,10 +2,12 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\CarStatus;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
-class CarStoreRequest extends FormRequest
+class CarUpdateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,8 +25,9 @@ class CarStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'make' => 'required',
-            'model' => 'required',
+            'status' => ['sometimes', Rule::in(CarStatus::cases(), 'value')],
+            'make' => ['sometimes', 'string'],
+            'model' => ['sometimes', 'string'],
         ];
     }
 }

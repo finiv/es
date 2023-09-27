@@ -1,7 +1,7 @@
 <?php
 
-use App\Projectors\CarAddedProjector;
-use App\Projectors\ChangeCarStatusProjector;
+use App\Projectors\Cars\CarAddedProjector;
+use App\Projectors\Cars\ChangeCarStatusProjector;
 
 return [
 

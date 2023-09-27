@@ -6,6 +6,7 @@ use App\Enums\CarStatus;
 use App\ESEvents\CarAdded;
 use App\ESEvents\CarRegistered;
 use App\ESEvents\CarStatusChanged;
+use App\ESEvents\CarUpdated;
 use App\Projections\Car;
 use Exception;
 use Spatie\EventSourcing\AggregateRoots\AggregateRoot;
@@ -28,6 +29,17 @@ class CarAggregate extends AggregateRoot
         }
 
         throw new Exception('Car can only be registered if it is in "new" status.');
+    }
+
+    public function update(array $params)
+    {
+        $this->recordThat(new CarUpdated($params['make'], $params['model']));
+
+        if (array_key_exists('status', $params)) {
+            $this->changeStatus($params['status']);
+        }
+
+        return $this;
     }
 
     public function changeStatus(string $status): static

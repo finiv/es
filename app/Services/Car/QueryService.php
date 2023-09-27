@@ -3,15 +3,17 @@
 namespace App\Services\Car;
 
 use App\Projections\Car;
+use App\Services\BaseQuery;
+use Illuminate\Database\Eloquent\Collection;
 
-class QueryService
+class QueryService implements BaseQuery
 {
-    public function query()
+    public function query(): Collection|array
     {
         return Car::query()->get();
     }
 
-    public function findCarsById(int $id)
+    public function find(int $id): ?Car
     {
         return Car::where('id', $id)->first();
     }

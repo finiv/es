@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Projectors;
+namespace App\Projectors\Cars;
 
 use App\ESEvents\CarAdded;
 use App\Services\Car\CommandService;
