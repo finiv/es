@@ -2,6 +2,7 @@
 
 namespace App\Projections;
 
+use App\Enums\CarStatus;
 use App\Models\CarEvent;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -17,6 +18,16 @@ class Car extends Projection
     }
 
     protected $guarded = [];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'status' => CarStatus::class,
+    ];
+
     protected $fillable = ['uuid', 'make', 'model', 'status'];
 
     public function events(): HasMany
@@ -24,8 +35,8 @@ class Car extends Projection
         return $this->hasMany(CarEvent::class);
     }
 
-    public function changeStatus($status): void
+    public function changeStatus(CarStatus $status): void
     {
-        $this->status = $status;
+        $this->status = $status->value;
     }
 }

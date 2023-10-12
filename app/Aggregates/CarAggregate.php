@@ -13,9 +13,11 @@ use Spatie\EventSourcing\AggregateRoots\AggregateRoot;
 
 class CarAggregate extends AggregateRoot
 {
-    public function addCar(string $make, string $model): static
+    public function addCar(array $params): static
     {
-        $this->recordThat(new CarAdded($make, $model));
+        if (array_key_exists('make', $params) && array_key_exists('model', $params)) {
+            $this->recordThat(new CarAdded($params['make'], $params['model']));
+        }
 
         return $this;
     }
@@ -24,14 +26,12 @@ class CarAggregate extends AggregateRoot
     {
         if ($car->status === CarStatus::NEW->value) {
             $this->recordThat(new CarRegistered());
-
-            return $this;
         }
 
-        throw new Exception('Car can only be registered if it is in "new" status.');
+        return $this;
     }
 
-    public function update(array $params)
+    public function update(array $params): static
     {
         $this->recordThat(new CarUpdated($params['make'], $params['model']));
 

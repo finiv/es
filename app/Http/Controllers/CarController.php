@@ -3,14 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Aggregates\CarAggregate;
-use App\Enums\CarStatus;
 use App\Http\Requests\CarStoreRequest;
 use App\Http\Requests\CarUpdateRequest;
 use App\Projections\Car;
+use App\Services\AggregateService;
 use App\Services\Car\QueryService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 class CarController extends Controller
 {
@@ -28,12 +26,12 @@ class CarController extends Controller
 
     public function store(CarStoreRequest $request): JsonResponse
     {
-        $carUuid = Str::uuid();
-
-        $car = CarAggregate::retrieve($carUuid);
-        $car->addCar($request->make, $request->model);
-
-        $car->persist();
+        app(AggregateService::class)
+            ->store(
+                resolve(CarAggregate::class),
+                ['make' => $request->make, 'model' => $request->model],
+                'addCar'
+            );
 
         return response()->json(['message' => 'Car created'], 201);
     }
@@ -46,9 +44,13 @@ class CarController extends Controller
             return response()->json(['message' => 'Car not found'], 404);
         }
 
-        CarAggregate::retrieve($id)->update($request->all())->persist();
+        app(AggregateService::class)->update(
+            resolve(CarAggregate::class),
+            $request->all(),
+            $car->id
+        );
 
-        return response()->json($car, 200);
+        return response()->json($car);
     }
 
     public function destroy($id): JsonResponse
