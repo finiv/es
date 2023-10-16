@@ -33,7 +33,7 @@ class CarAggregate extends AggregateRoot
 
     public function update(array $params): static
     {
-        $this->recordThat(new CarUpdated($params['make'], $params['model']));
+        $this->recordThat(new CarUpdated($params['make'] ?? null, $params['model'] ?? null));
 
         if (array_key_exists('status', $params)) {
             $this->changeStatus($params['status']);

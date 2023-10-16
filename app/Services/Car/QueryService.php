@@ -3,10 +3,9 @@
 namespace App\Services\Car;
 
 use App\Projections\Car;
-use App\Services\BaseQuery;
 use Illuminate\Database\Eloquent\Collection;
 
-class QueryService implements BaseQuery
+class QueryService
 {
     public function query(): Collection|array
     {
@@ -18,17 +17,17 @@ class QueryService implements BaseQuery
         return Car::where('id', $id)->first();
     }
 
-    public function findCarsByModel(string $model)
+    public function findCarsByModel(string $model): Collection
     {
         return Car::where('model', $model)->get();
     }
 
-    public function findCarsByStatus(string $status)
+    public function findCarsByStatus(string $status): Collection
     {
         return Car::where('status', $status)->get();
     }
 
-    public function findCarsByModelsAndStatuses(array $models, array $statuses)
+    public function findCarsByModelsAndStatuses(array $models, array $statuses): Collection
     {
         return Car::whereIn('model', $models)
             ->whereIn('status', $statuses)

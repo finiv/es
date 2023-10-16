@@ -5,14 +5,17 @@ namespace App\Http\Controllers;
 use App\Aggregates\CarAggregate;
 use App\Http\Requests\CarStoreRequest;
 use App\Http\Requests\CarUpdateRequest;
-use App\Projections\Car;
 use App\Services\AggregateService;
 use App\Services\Car\QueryService;
 use Illuminate\Http\JsonResponse;
 
 class CarController extends Controller
 {
-    public function __construct(private readonly QueryService $queryService){}
+    public function __construct(
+        private readonly QueryService $queryService,
+        private readonly AggregateService $aggregateService
+    ) {
+    }
 
     public function index(): JsonResponse
     {
@@ -26,12 +29,11 @@ class CarController extends Controller
 
     public function store(CarStoreRequest $request): JsonResponse
     {
-        app(AggregateService::class)
-            ->store(
-                resolve(CarAggregate::class),
-                ['make' => $request->make, 'model' => $request->model],
-                'addCar'
-            );
+        $this->aggregateService->store(
+            resolve(CarAggregate::class),
+            ['make' => $request->make, 'model' => $request->model],
+            'addCar'
+        );
 
         return response()->json(['message' => 'Car created'], 201);
     }
@@ -44,25 +46,17 @@ class CarController extends Controller
             return response()->json(['message' => 'Car not found'], 404);
         }
 
-        app(AggregateService::class)->update(
+        $this->aggregateService->update(
             resolve(CarAggregate::class),
-            $request->all(),
+            $request->only(['make', 'model', 'status']),
             $car->id
         );
 
         return response()->json($car);
     }
 
-    public function destroy($id): JsonResponse
+    public function destroy(int $id): void
     {
-        $car = Car::find($id);
-
-        if (!$car) {
-            return response()->json(['message' => 'Car not found'], 404);
-        }
-
-        $car->delete();
-
-        return response()->json(null, 204);
+        // todo
     }
 }

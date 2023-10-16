@@ -9,7 +9,6 @@ use App\ESEvents\CarStatusChanged;
 use App\ESEvents\CarUpdated;
 use App\Models\CarEvent;
 use App\Projections\Car;
-use Illuminate\Support\Str;
 
 class CommandService
 {
@@ -48,13 +47,18 @@ class CommandService
 
     public function registerCarUpdatedEvent(CarUpdated $event): void
     {
+        $car = app(QueryService::class)->find($event->aggregateRootUuid());
+
+        $attributesToUpdate = $event->getActiveAttributes();
+
+        if ($attributesToUpdate) {
+            $car->update($attributesToUpdate);
+        }
+
         CarEvent::create([
             'car_id' => $event->aggregateRootUuid(),
             'event_class' => CarUpdated::class,
-            'event_properties' => json_encode([
-                'make' => $event->getMake(),
-                'model' => $event->getModel(),
-                ], JSON_THROW_ON_ERROR),
+            'event_properties' => json_encode($attributesToUpdate, JSON_THROW_ON_ERROR),
         ]);
     }
 
@@ -81,15 +85,5 @@ class CommandService
         $car->writeable()->save();
 
         $this->registerCarStatusChangedEvent($event);
-    }
-
-    public function update(CarUpdated $event): void
-    {
-        $car = app(QueryService::class)->find($event->aggregateRootUuid());
-
-        $car->update([
-            'make' => $event->make,
-            'model' => $event->model
-        ]);
     }
 }

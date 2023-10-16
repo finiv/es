@@ -19,11 +19,6 @@ class Car extends Projection
 
     protected $guarded = [];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
         'status' => CarStatus::class,
     ];
@@ -33,10 +28,5 @@ class Car extends Projection
     public function events(): HasMany
     {
         return $this->hasMany(CarEvent::class);
-    }
-
-    public function changeStatus(CarStatus $status): void
-    {
-        $this->status = $status->value;
     }
 }
